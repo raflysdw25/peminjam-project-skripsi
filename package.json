@@ -1,0 +1,35 @@
+{
+	"name": "peminjam-project-skripsi",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"serve": "vue-cli-service serve",
+		"build": "vue-cli-service build"
+	},
+	"dependencies": {
+		"bootstrap": "^4.6.0",
+		"bootstrap-vue": "^2.21.2",
+		"moment": "^2.27.0",
+		"register-service-worker": "^1.7.1",
+		"vue": "^2.6.11",
+		"vue-router": "^3.2.0",
+		"vue2-datepicker": "^3.6.2",
+		"vuex": "^3.4.0"
+	},
+	"devDependencies": {
+		"@vue/cli-plugin-pwa": "~4.5.0",
+		"@vue/cli-plugin-router": "~4.5.0",
+		"@vue/cli-plugin-vuex": "~4.5.0",
+		"@vue/cli-service": "~4.5.0",
+		"node-sass": "^4.12.0",
+		"sass-loader": "^8.0.2",
+		"vue-template-compiler": "^2.6.11"
+	},
+	"browserslist": [
+		"> 1%",
+		"last 2 versions",
+		"not dead"
+	],
+	"_id": "peminjam-project-skripsi@0.1.0",
+	"readme": "ERROR: No README data found!"
+}
