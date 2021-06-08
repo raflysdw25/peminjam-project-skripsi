@@ -90,3 +90,7 @@
 		}
 	}
 </style>
+
+<style lang="scss">
+	@import '@/assets/css/global.scss';
+</style>

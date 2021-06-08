@@ -11,19 +11,22 @@
 				>
 					Batal
 				</button>
-				<button class="smil-btn smil-bg-primary" :disabled="!formFilled">
+				<button
+					class="smil-btn smil-bg-primary"
+					:disabled="!formFilled"
+					@click="createReport"
+				>
 					Submit
 				</button>
 			</div>
 		</div>
 		<div class="form-content">
 			<div
-				class="smil-row"
+				class="smil-row align-items-center"
 				v-for="(form, idxForm) in formList"
 				:key="`form-${idxForm}`"
 			>
-				<div class="col-lg-3 d-lg-block"></div>
-				<div class="form-group col-lg-6 col-12">
+				<div class="form-group col-lg-6 offset-lg-3">
 					<label :for="`input-${idxForm}`" class="form-label">
 						{{ form.label }}
 					</label>
@@ -35,8 +38,13 @@
 						class="form-control"
 						v-if="formInputType(form.type) === 'input'"
 						:placeholder="form.placeholder"
+						@keydown="formConstraint($event, form.type)"
+						@paste="formPasteConstraint($event, form.type)"
 						v-model="form.model"
+						@change="changeValueInput(idxForm)"
+						:disabled="form.disabled"
 					/>
+
 					<textarea
 						v-if="form.type === 'text-area'"
 						class="form-control"
@@ -44,24 +52,54 @@
 						rows="10"
 						:placeholder="form.placeholder"
 						v-model="form.model"
+						:disabled="form.disabled"
 					>
 					</textarea>
 					<p class="desc" v-if="form.description !== ''">
 						{{ form.description }}
 					</p>
 				</div>
-				<div class="col-lg-3 d-lg-block"></div>
+				<button
+					class="smil-btn smil-bg-danger"
+					v-if="idxForm === 1 && form.model.length > 2"
+					@click="deleteBarcode(idxForm)"
+				>
+					Delete Barcode
+				</button>
 			</div>
 		</div>
+		<b-modal
+			ref="modal-popup"
+			hide-footer
+			hide-header
+			centered
+			no-close-on-backdrop
+			no-close-on-esc
+		>
+			<base-modal-alert
+				v-if="baseModalType === 'alert'"
+				:isProcess="isProcess"
+				:isSuccess="isSuccess"
+				:message="message"
+				:closeAlert="closePopup"
+			/>
+		</b-modal>
 	</div>
 </template>
 
 <script>
+	// Components
+	import BaseModalAlert from '@/components/BaseModal/BaseModalAlert'
 	// Mixins
+	import ModalMixins from '@/mixins/ModalMixins'
 	import FormInputMixins from '@/mixins/FormInputMixins'
+
+	// API
+	import api from '@/api/peminjam_api'
 	export default {
 		name: 'lapor-kerusakan-alat',
-		mixins: [FormInputMixins],
+		mixins: [FormInputMixins, ModalMixins],
+		components: { BaseModalAlert },
 		data() {
 			return {
 				formList: [
@@ -69,18 +107,22 @@
 						label: 'Nomor Induk',
 						type: 'text',
 						model: '',
-						description: 'NIM unutk Mahasiswa dan NIP untuk Staff / Dosen',
+						description: 'NIM untuk Mahasiswa dan NIP untuk Staff / Dosen',
 						placeholder: 'Nomor Induk',
 						isRequired: true,
+						data: 'pelapor',
+						disabeld: false,
 					},
 					{
 						label: 'Barcode Alat',
-						type: 'text',
+						type: 'barcode-input',
 						model: '',
 						description:
 							'Arahkan kursor ke kolom input, lalu Gunakan barcode scanner yang tersedia untuk membaca barcode alat',
 						placeholder: 'Barcode Alat',
 						isRequired: true,
+						data: 'alat',
+						disabeld: false,
 					},
 					{
 						label: 'Kronologi Kerusakan',
@@ -89,9 +131,96 @@
 						description: '',
 						placeholder: 'Kronologi Kerusakan Alat',
 						isRequired: true,
+						disabeld: false,
 					},
 				],
+				pelapor: {
+					valid: false,
+					type: '',
+				},
 			}
+		},
+		methods: {
+			// CALL API
+			async cekDataLab(type, payload) {
+				try {
+					const response = await api.cekData(type, payload)
+					if (response.data.response.code === 200) {
+						if (type === 'alat') {
+							let alat = response.data.data
+							if (alat.length === 0) {
+								this.formList[1].model = ''
+								this.showAlert(false, false, 'Alat tidak ditemukan')
+							} else {
+								let alatName = {
+									label: 'Nama Alat',
+									type: 'text',
+									model: alat[0]['alat_model']['alat_name'],
+									description: '',
+									placeholder: 'Nama Alat',
+									isRequired: false,
+									disabled: true,
+								}
+								this.formList.splice(2, 0, alatName)
+								this.formList[1].disabled = true
+							}
+						} else if (type === 'pelapor') {
+							let pelapor = response.data.data
+							if (pelapor.valid === false) {
+								this.formList[0].model = ''
+								this.showAlert(false, false, 'Pelapor tidak ditemukan')
+							}
+							this.pelapor.valid = response.data.data.valid
+							this.pelapor.type = response.data.data.pelapor
+						}
+					}
+				} catch (e) {
+					this.showAlert(false, false, e)
+				}
+			},
+			async createReport() {
+				this.isCreate = true
+				this.showAlert(true)
+				try {
+					const response = await api.createData(
+						'laporan-kerusakan',
+						this.submitRequest
+					)
+					if (response.data.response.code === 201) {
+						this.showAlert(false, true, response.data.response.message)
+						setTimeout(() => {
+							this.$router.push({ name: 'BerandaPeminjaman' })
+						}, 2000)
+					}
+				} catch (e) {
+					this.isCreate = false
+					this.showAlert(false, false, e)
+				}
+			},
+			changeValueInput(indexData) {
+				let form = this.formList[indexData]
+				let payload = {}
+				if (form.data === 'alat') {
+					payload.barcode_alat = form.model
+				} else if (form.data === 'pelapor') {
+					payload.nomor_induk = form.model
+				}
+
+				if (form.model !== '') {
+					this.cekDataLab(form.data, payload)
+				}
+			},
+			deleteBarcode(indexData) {
+				let form = this.formList[indexData]
+				form.model = ''
+				form.disabled = false
+				let index = this.formList.findIndex(
+					(form) => form.label === 'Nama Alat'
+				)
+				if (index > -1) {
+					this.formList.splice(index, 1)
+				}
+			},
 		},
 		computed: {
 			submitRequest() {
@@ -99,21 +228,26 @@
 				return {
 					nomor_induk: form[0].model,
 					barcode_alat: form[1].model,
-					kronologi: form[2].model,
+					chronology: form.length === 3 ? form[2].model : form[3].model,
 				}
 			},
 			formFilled() {
 				return (
 					this.submitRequest.nomor_induk !== '' &&
-					this.submitRequest.barcode_alat !== ''
+					this.submitRequest.barcode_alat !== '' &&
+					this.submitRequest.chronology !== ''
 				)
 			},
 		},
 		beforeRouteLeave(to, from, next) {
-			let confirm = window.confirm(
-				'Apakah anda yakin akan meninggalkan halaman ini? Data yang telah dimasukkan tidak akan tersimpan'
-			)
-			if (confirm) {
+			if (!this.isCreate) {
+				let confirm = window.confirm(
+					'Apakah anda yakin akan meninggalkan halaman ini? Data yang telah dimasukkan tidak akan tersimpan'
+				)
+				if (confirm) {
+					next()
+				}
+			} else {
 				next()
 			}
 		},

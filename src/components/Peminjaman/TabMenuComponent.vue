@@ -94,18 +94,38 @@
 				</p>
 			</div>
 		</div>
+		<b-modal
+			ref="modal-popup"
+			hide-footer
+			hide-header
+			centered
+			no-close-on-backdrop
+			no-close-on-esc
+		>
+			<base-modal-alert
+				v-if="baseModalType === 'alert'"
+				:isProcess="isProcess"
+				:isSuccess="isSuccess"
+				:message="message"
+				:closeAlert="closePopup"
+			/>
+		</b-modal>
 	</div>
 </template>
 
 <script>
 	// Mixins
 	import FormInputMixins from '@/mixins/FormInputMixins'
+	import ModalMixins from '@/mixins/ModalMixins'
 	// Component
 	import IconComponent from '@/components/IconComponent'
+	import BaseModalAlert from '@/components/BaseModal/BaseModalAlert'
+	// API
+	import api from '@/api/peminjam_api'
 	export default {
 		name: 'tab-menu-component',
-		components: { IconComponent },
-		mixins: [FormInputMixins],
+		components: { IconComponent, BaseModalAlert },
+		mixins: [FormInputMixins, ModalMixins],
 		props: {
 			tabMenu: Object,
 			actionButton: Function,
@@ -117,8 +137,26 @@
 		},
 		methods: {
 			// API
-			checkFunction() {
-				alert(this.tabMenu.inputValue)
+			async checkFunction() {
+				this.showAlert(true)
+				let payload = {
+					nomor_induk: this.tabMenu.inputValue,
+				}
+				try {
+					const response = await api.cekData('peminjaman', payload)
+					if (response.data.response.code === 200) {
+						let data = response.data.data
+						this.listInfo = data
+						if (this.listInfo.length === 0) {
+							this.showAlert(false, true, 'Tidak ada peminjaman')
+						} else {
+							this.showAlert(false, true, 'Peminjaman Ditemukan')
+						}
+						this.tabMenu.inputValue = ''
+					}
+				} catch (e) {
+					this.showAlert(false, false, e)
+				}
 			},
 			// Action
 			action() {

@@ -11,7 +11,11 @@
 				>
 					Batal
 				</button>
-				<button class="smil-btn smil-bg-primary" :disabled="!formFilled">
+				<button
+					class="smil-btn smil-bg-primary"
+					@click="addMahasiswa"
+					:disabled="!formFilled"
+				>
 					Submit
 				</button>
 			</div>
@@ -26,7 +30,7 @@
 					<label :for="`input-${idxForm}`" class="form-label">
 						{{ form.label }}
 					</label>
-					<span style="color: #dc3545; font-size: 14px">
+					<span style="color: #dc3545; font-size: 14px" v-if="form.isRequired">
 						*
 					</span>
 					<input
@@ -45,33 +49,59 @@
 						v-model="form.model"
 					>
 					</textarea>
-					<template v-if="form.type === 'select'">
-						<b-form-input
-							:list="`input-list-${indexInput}`"
-							id="input-with-list"
-							v-model="form.model"
-							:placeholder="form.placeholder"
-						></b-form-input>
-						<b-form-datalist
-							:id="`input-list-${indexInput}`"
-							:options="form.options"
-						></b-form-datalist>
-					</template>
+					<select
+						class="custom-select"
+						v-if="form.type === 'select'"
+						v-model="form.model"
+					>
+						<option
+							:value="ops.value"
+							v-for="(ops, idxOps) in form.options"
+							:key="`select-form-${idxOps}`"
+						>
+							{{ ops.name }}
+						</option>
+					</select>
+
 					<p class="desc" v-if="form.description !== ''">
 						{{ form.description }}
 					</p>
 				</div>
 			</div>
 		</div>
+
+		<b-modal
+			ref="modal-popup"
+			hide-footer
+			hide-header
+			centered
+			no-close-on-backdrop
+			no-close-on-esc
+		>
+			<base-modal-alert
+				v-if="baseModalType === 'alert'"
+				:isProcess="isProcess"
+				:isSuccess="isSuccess"
+				:message="message"
+				:closeAlert="closePopup"
+			/>
+		</b-modal>
 	</div>
 </template>
 
 <script>
+	// Components
+	import BaseModalAlert from '@/components/BaseModal/BaseModalAlert'
 	// Mixins
 	import FormInputMixins from '@/mixins/FormInputMixins'
+	import ModalMixins from '@/mixins/ModalMixins'
+
+	// API
+	import api from '@/api/peminjam_api'
 	export default {
 		name: 'buat-akun-mahasiswa',
-		mixins: [FormInputMixins],
+		components: { BaseModalAlert },
+		mixins: [FormInputMixins, ModalMixins],
 		data() {
 			return {
 				formList: [
@@ -108,29 +138,13 @@
 						isRequired: true,
 					},
 					{
-						label: 'Password',
-						type: 'password',
-						model: '',
-						description: '',
-						placeholder: 'Password',
-						isRequired: true,
-					},
-					{
-						label: 'Konfirmasi Password',
-						type: 'password',
-						model: '',
-						description: '',
-						placeholder: 'Konfirmasi Password',
-						isRequired: true,
-					},
-					{
 						label: 'Program Studi',
 						type: 'select',
-						model: '',
+						model: null,
 						description: '',
 						placeholder: 'Program Studi',
-						isRequired: true,
-						options: [{ text: '', value: '' }],
+						isRequired: false,
+						options: [],
 					},
 					{
 						label: 'Tahun Diterima',
@@ -146,76 +160,94 @@
 						model: '',
 						description: '',
 						placeholder: 'Alamat',
-						isRequired: true,
+						isRequired: false,
 					},
 				],
 			}
 		},
-		mounted() {
-			this.getListProdi()
+		async mounted() {
+			await this.getListProdi()
+			// this.showAlert(false, false, 'Alert Berhasil')
 		},
 		computed: {
 			submitRequest() {
 				let form = this.formList
 				return {
 					nim: form[0].model,
-					nama: form[1].model,
+					mahasiswa_fullname: form[1].model,
 					email: form[2].model,
-					no_telp: form[3].model,
-					password: form[4].model,
-					prodi: parseInt(form[6].model.split(' - ')[0]),
-					tahun: form[7].model,
-					alamat: form[8].model,
+					phone_number: form[3].model,
+					prodi_id: form[4].model,
+					register_year: form[5].model,
+					address: form[6].model,
 				}
 			},
 			formFilled() {
 				let sr = this.submitRequest
 				return (
 					sr.nim !== '' &&
-					sr.nama !== '' &&
+					sr.mahasiswa_fullname !== '' &&
 					sr.email !== '' &&
-					sr.no_telp !== '' &&
-					sr.password !== '' &&
-					sr.prodi !== '' &&
-					sr.tahun !== '' &&
-					sr.alamat !== '' &&
-					sr.password === this.formList[5].model
+					sr.phone_number !== '' &&
+					sr.register_year !== ''
 				)
 			},
 		},
 		methods: {
 			async getListProdi() {
-				let list = [
-					{
-						id: 1,
-						text: '1 - Teknik Multimedia dan Digital',
-						value: '1 - Teknik Multimedia dan Digital',
-					},
-					{
-						id: 2,
-						text: '2 - Teknik Multimedia Jaringan',
-						value: '2 - Teknik Multimedia Jaringan',
-					},
-					{
-						id: 3,
-						text: '3 - Teknik Informatika',
-						value: '3 - Teknik Informatika',
-					},
-					{
-						id: 4,
-						text: '4 - Teknik Jaringan dan Komputer',
-						value: '4 - Teknik Jaringan dan Komputer',
-					},
-				]
-				// let list = ['TMD', 'TMJ', 'TI', 'TKJ']
-				this.formList[6].options = list
+				try {
+					const response = await api.getPlainData('prodi')
+					let listProdi = response.data.data
+					if (response.data.response.code === 200) {
+						let list = [
+							{
+								id: null,
+								name: 'Pilih Program Studi',
+								value: null,
+								disabled: false,
+							},
+						]
+						listProdi.forEach((prodi) => {
+							let pd = {
+								id: prodi.id,
+								name: prodi.prodi_name,
+								value: prodi.id,
+								disabled: false,
+							}
+							list.push(pd)
+						})
+						this.formList[4].options = list
+					}
+				} catch (e) {
+					this.showAlert(false, false, e)
+				}
+			},
+			async addMahasiswa() {
+				this.isCreate = true
+				this.showAlert(true)
+				try {
+					const response = await api.createData('mahasiswa', this.submitRequest)
+					if (response.data.response.code === 201) {
+						this.showAlert(false, true, response.data.response.message)
+						setTimeout(() => {
+							this.$router.push({ name: 'BerandaPeminjaman' })
+						}, 2000)
+					}
+				} catch (e) {
+					this.isCreate = false
+					this.showAlert(false, false, e)
+				}
 			},
 		},
 		beforeRouteLeave(to, from, next) {
-			let confirm = window.confirm(
-				'Apakah anda yakin akan meninggalkan halaman ini? Data yang telah dimasukkan tidak akan tersimpan'
-			)
-			if (confirm) {
+			if (!this.isCreate) {
+				let confirLeave = window.confirm(
+					'Apakah anda yakin akan meninggalkan halaman ini? Data yang telah dimasukkan tidak akan tersimpan'
+				)
+				if (confirLeave) {
+					next()
+				}
+			} else {
 				next()
 			}
 		},
@@ -257,27 +289,6 @@
 		.col-lg-6,
 		.col-12 {
 			padding-left: 0;
-		}
-		input {
-			&.form-control {
-				color: #000;
-				background-color: #fff;
-				border-color: #c5c5c5;
-				border-radius: 5px;
-				// font-size: 12px;s
-				&:focus {
-					box-shadow: 0 0 0 1px #020b2a;
-				}
-				&:disabled {
-					background-color: #c5c5c5;
-					border-color: #696969;
-				}
-
-				height: 50px;
-			}
-		}
-		.form-control {
-			font-size: 16px;
 		}
 	}
 </style>
