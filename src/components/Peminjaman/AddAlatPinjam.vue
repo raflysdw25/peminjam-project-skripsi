@@ -4,40 +4,72 @@
 		<div class="form-content">
 			<div class="form-group">
 				<label class="form-label">
-					{{ formAdd[addType].label }}
+					{{ formAdd[formKey].label }}
 				</label>
-				<template v-if="addType === 'long'">
-					<b-form-input
-						v-if="formAdd[addType].type === 'select'"
-						list="input-list"
-						id="input-with-list"
-						v-model="formAdd[addType].model"
-						:placeholder="formAdd[addType].placeholder"
-						:disabled="formAdd[addType].disabled"
-					></b-form-input>
-					<b-form-datalist
-						id="input-list"
-						:options="formAdd[addType].options"
-					></b-form-datalist>
+				<template v-if="formKey === 'booking'">
+					<select
+						class="custom-select"
+						v-if="formAdd[formKey].type === 'select'"
+						v-model="formAdd[formKey].model"
+						:disabled="formAdd[formKey].disabled"
+					>
+						<option
+							:disabled="ops.disabled"
+							:value="ops.value"
+							v-for="(ops, idxOps) in formAdd[formKey].options"
+							:key="`select-options-alat-${idxOps}`"
+						>
+							{{ ops.name }}
+						</option>
+					</select>
 				</template>
-				<template v-if="addType === 'short'">
+				<template v-if="formKey === 'direct'">
 					<input
-						:type="formAdd[addType].type"
-						v-model="formAdd[addType].model"
-						:placeholder="formAdd[addType].placeholder"
+						:type="formAdd[formKey].type"
+						v-model="formAdd[formKey].model"
+						:placeholder="formAdd[formKey].placeholder"
 						class="form-control"
+						ref="focus-barcode"
+						@change="cekAlatByBarcode"
+						@keypress="formConstraint($event, 'barcode-input')"
 					/>
 				</template>
-				<p class="desc" v-if="formAdd[addType].desc !== ''">
-					{{ formAdd[addType].desc }}
+				<p class="desc" v-if="formAdd[formKey].desc !== ''">
+					{{ formAdd[formKey].desc }}
 				</p>
 			</div>
 		</div>
-		<div class="info-content">
+		<div class="info-content" v-if="formKey == 'direct'">
 			<h6>Informasi Alat</h6>
-			<p class="empty-form" v-if="formAdd[addType].model === ''">
-				Belum ada alat {{ addType === 'short' ? 'terdeteksi' : 'dipilih' }}
+			<p class="empty-form" v-if="formAdd['direct'].model.length < 2">
+				Belum ada alat terdeteksi
 			</p>
+			<template v-else>
+				<div class="table-responsive-sm">
+					<table class="table table-borderless">
+						<tr>
+							<th>Nama Alat</th>
+							<td>{{ barcodeAlatData.alat_name }}</td>
+						</tr>
+						<tr>
+							<th>Kondisi Alat</th>
+							<td>
+								<span class="smil-status smil-bg-success">
+									Baik
+								</span>
+							</td>
+						</tr>
+						<tr>
+							<th>Ketersediaan Alat</th>
+							<td>
+								<span class="smil-status smil-bg-info">
+									Tersedia
+								</span>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</template>
 		</div>
 		<div class="button-group d-flex justify-content-end">
 			<button
@@ -48,7 +80,11 @@
 			</button>
 			<button
 				class="smil-btn smil-btn-small smil-bg-primary"
-				:disabled="formAdd[addType].model == ''"
+				:disabled="
+					(formKey === 'direct' && formAdd[formKey].model.length < 2) ||
+						(formKey === 'booking' && formAdd[formKey].model === null)
+				"
+				@click="addAlat"
 			>
 				Submit
 			</button>
@@ -59,34 +95,122 @@
 <script>
 	// Mixins
 	import FormInputMixins from '@/mixins/FormInputMixins'
+
+	// API
+	import api from '@/api/peminjam_api'
+
 	export default {
 		name: 'add-alat-pinjam',
 		props: {
-			addType: String,
 			closeModal: Function,
+			isBooking: Boolean,
+			submitFunction: Function,
 		},
 		mixins: [FormInputMixins],
+		async mounted() {
+			if (this.isBooking) {
+				await this.getAlatList()
+			}
+		},
+		computed: {
+			formKey() {
+				return this.isBooking ? 'booking' : 'direct'
+			},
+		},
 		data() {
 			return {
 				formAdd: {
-					long: {
+					booking: {
 						label: 'Alat Dipinjam',
 						type: 'select',
-						placeholder: 'Pilih alat yang akan dipinjam',
-						model: '',
+						placeholder: 'Pilih alat yang tersedia',
+						model: null,
 						options: [],
 					},
-					short: {
+					direct: {
 						label: 'Barcode Alat',
 						type: 'text-barcode',
 						placeholder: 'Barcode Alat',
 						desc:
 							'Arahkan kursor ke kolom input, lalu Gunakan barcode scanner yang tersedia untuk membaca barcode alat',
 						model: '',
-						options: [],
 					},
 				},
+				barcodeAlatData: {},
 			}
+		},
+		methods: {
+			// Call API
+			async getAlatList() {
+				try {
+					const response = await api.getPlainData('alat')
+					if (response.data.response.code === 200) {
+						let listData = response.data.data
+						let listAlat = [
+							{
+								id: null,
+								name: 'Pilih Alat yang ingin dipinjam',
+								value: null,
+								disabled: true,
+							},
+						]
+
+						listData.forEach((data) => {
+							let alat = {
+								id: data.id,
+								name: data.alat_name,
+								value: data.id,
+								disabled: false,
+							}
+							listAlat.push(alat)
+						})
+						this.formAdd['booking'].options = listAlat
+					}
+				} catch (e) {
+					alert(e)
+				}
+			},
+			async cekAlatByBarcode() {
+				if (this.formAdd['direct'].model.length > 2) {
+					try {
+						let payload = {
+							barcode_alat: this.formAdd['direct'].model,
+						}
+						const response = await api.cekData('alat', payload)
+						if (response.data.response.code == 200) {
+							let data = response.data.data
+							if (data !== null) {
+								this.barcodeAlatData = data
+							} else {
+								this.formAdd['direct'].model = ''
+								alert(response.data.response.message)
+							}
+						}
+					} catch (e) {
+						this.formAdd['direct'].model = ''
+						alert(e)
+					}
+				}
+			},
+			addAlat() {
+				if (this.formKey == 'booking') {
+					let form = this.formAdd.booking
+					let alat = form.options.find((ops) => ops.id === form.model)
+					this.submitFunction({
+						id: alat.id,
+						alat_name: alat.name,
+					})
+				} else if (this.formKey == 'direct') {
+					this.submitFunction({
+						barcode_alat: this.barcodeAlatData.barcode_alat,
+						alat_name: this.barcodeAlatData.alat_name,
+					})
+				}
+				this.closeModal()
+			},
+			focusInput(inputRef) {
+				this.$refs[inputRef].focus()
+			},
 		},
 	}
 </script>
@@ -119,6 +243,23 @@
 				margin-bottom: 0;
 				&.empty-form {
 					color: #696969;
+				}
+			}
+			table {
+				th {
+					width: 120px;
+				}
+				th,
+				td {
+					padding-left: 0;
+					font-size: 12px;
+				}
+				td {
+					span {
+						&.smil-status {
+							font-size: 12px;
+						}
+					}
 				}
 			}
 		}

@@ -14,4 +14,17 @@ export default {
 		// cek-alat, cek-pelapor, cek-peminjaman
 		return peminjam_api.post(`cek-${type}`, cekPayload)
 	},
+
+	// Custom
+	getDataPeminjam(payload) {
+		return peminjam_api.post(`get-peminjam`, payload)
+	},
+
+	getNeedReturnedPeminjam(payload) {
+		return peminjam_api.post(`get-need-returned`, payload)
+	},
+
+	returnPeminjaman(peminjamanId) {
+		return peminjam_api.put(`return-peminjaman/${peminjamanId}`)
+	},
 }

@@ -1,11 +1,11 @@
 // Getters
-export const ADMIN = 'ADMIN'
 export const PEMINJAM = 'PEMINJAM'
+export const PEMINJAMANDATA = 'PEMINJAMANDATA'
 
 // Mutations
-export const MUTATE_ADMIN = 'MUTATE_ADMIN'
 export const MUTATE_PEMINJAM = 'MUTATE_PEMINJAM'
+export const MUTATE_PEMINJAMANDATA = 'MUTATE_PEMINJAMANDATA'
 
 // Actions
-export const UPDATE_ADMIN = 'UPDATE_ADMIN'
 export const UPDATE_PEMINJAM = 'UPDATE_PEMINJAM'
+export const UPDATE_PEMINJAMANDATA = 'UPDATE_PEMINJAMANDATA'

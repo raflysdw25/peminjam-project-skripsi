@@ -11,6 +11,7 @@ import BerandaPeminjaman from '@/views/pages/peminjaman/BerandaPeminjaman.vue'
 import LaporKerusakanAlat from '@/views/pages/peminjaman/LaporKerusakanAlat.vue'
 import BuatAkunMahasiswa from '@/views/pages/peminjaman/BuatAkunMahasiswa.vue'
 import ActionPeminjaman from '@/views/pages/peminjaman/ActionPeminjaman.vue'
+import ActionPengembalian from '@/views/pages/peminjaman/ActionPengembalian.vue'
 
 Vue.use(VueRouter)
 
@@ -30,9 +31,14 @@ const routes = [
 			},
 			// Form Peminjaman & Pengembalian
 			{
-				path: '/:actionType',
+				path: '/peminjaman',
 				name: 'ActionPeminjaman',
 				component: ActionPeminjaman,
+			},
+			{
+				path: '/pengembalian',
+				name: 'ActionPengembalian',
+				component: ActionPengembalian,
 			},
 			// Form Laporan Kerusakan
 			{

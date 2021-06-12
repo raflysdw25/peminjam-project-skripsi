@@ -67,25 +67,42 @@
 			<div class="input-display">
 				<h5>Informasi Peminjaman Terakhir</h5>
 				<div class="list-info" v-if="listInfo.length > 0">
+					<h6>
+						{{
+							listInfo[0].nim_mahasiswa !== null
+								? listInfo[0].mahasiswa_peminjam_model.mahasiswa_fullname
+								: listInfo[0].staff_peminjam_model.staff_fullname
+						}}
+					</h6>
 					<div
 						class="info-group"
-						:class="listInfo.length > 2 ? `scroll-info` : ``"
+						v-for="(list, idxList) in listInfo"
+						:key="`unfinished-peminjaman-${idxList}`"
 					>
 						<p class="created-date">
-							{{ this.formatDate(new Date(), 'DD MMM YYYY HH:mm') }} s.d
-							{{
-								this.formatDate(
-									new Date('2021-05-21T10:20:30Z'),
-									'DD MMM YYYY HH:mm '
-								)
-							}}
+							{{ formatDate(list.created_date, 'DD MMMM YYYY') }}
+							s.d
+							{{ formatDate(list.expected_return_date, 'DD MMMM YYYY') }}
 						</p>
 						<div class="alat-list">
-							<p>{{ `64MA2017` }} - {{ `Macbook Pro 2017` }}</p>
-							<p>{{ `25POC2021` }} - {{ `POCO X3 PRO 2021` }}</p>
+							<p
+								v-for="(alat, idxAlat) in list.detail_peminjaman_model"
+								:key="`list-detail-alat-${idxAlat}`"
+							>
+								<template v-if="list.pjm_status == 1">
+									{{ alat.alat_pinjam.alat_name }}
+								</template>
+								<template v-else>
+									{{ alat.barcode_alat }} -
+									{{ alat.barcode_alat_pinjam.alat_model.alat_name }}
+								</template>
+							</p>
 						</div>
-						<p class="smil-status smil-bg-warning">
-							Belum Kembali
+						<p
+							class="smil-status"
+							:class="statusPeminjaman(list.pjm_status).background"
+						>
+							{{ statusPeminjaman(list.pjm_status).text }}
 						</p>
 					</div>
 				</div>
@@ -146,10 +163,11 @@
 					const response = await api.cekData('peminjaman', payload)
 					if (response.data.response.code === 200) {
 						let data = response.data.data
-						this.listInfo = data
-						if (this.listInfo.length === 0) {
+						if (data.length === 0) {
+							this.listInfo = []
 							this.showAlert(false, true, 'Tidak ada peminjaman')
 						} else {
+							this.listInfo = data
 							this.showAlert(false, true, 'Peminjaman Ditemukan')
 						}
 						this.tabMenu.inputValue = ''
@@ -161,6 +179,37 @@
 			// Action
 			action() {
 				this.actionButton('action')
+			},
+			statusPeminjaman(status_id) {
+				let listStatus = [
+					{
+						id: 1,
+						text: 'Butuh Persetujuan',
+						background: 'smil-bg-warning',
+					},
+					{
+						id: 2,
+						text: 'Alat belum diambil',
+						background: 'smil-bg-info',
+					},
+					{
+						id: 3,
+						text: 'Ditolak',
+						background: 'smil-bg-danger',
+					},
+					{
+						id: 4,
+						text: 'Belum Kembali',
+						background: 'smil-bg-warning',
+					},
+					{
+						id: 5,
+						text: 'Selesai',
+						background: 'smil-bg-success',
+					},
+				]
+
+				return listStatus.find((status) => status.id === status_id)
 			},
 		},
 	}
@@ -230,6 +279,8 @@
 				}
 				.list-info {
 					padding-top: 30px;
+					height: 200px;
+					overflow: scroll;
 					.info-group {
 						display: flex;
 						margin-bottom: 20px;

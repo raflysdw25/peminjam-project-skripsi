@@ -155,7 +155,7 @@
 								let alatName = {
 									label: 'Nama Alat',
 									type: 'text',
-									model: alat[0]['alat_model']['alat_name'],
+									model: alat['alat_name'],
 									description: '',
 									placeholder: 'Nama Alat',
 									isRequired: false,

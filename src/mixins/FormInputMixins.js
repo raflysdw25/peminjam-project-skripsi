@@ -12,6 +12,7 @@ export default {
 				'barcode-input',
 			],
 			isCreate: false,
+			loadingForm: false,
 		}
 	},
 	methods: {
@@ -48,13 +49,16 @@ export default {
 				return true
 			}
 		},
-		formatDate(date, format = 'DD-MM-YYYY') {
+		formatDate(date, format = 'YYYY-MM-DD') {
 			return moment(date).format(format)
+		},
+		notBeforeToday(date) {
+			return date < new Date().setHours(0, 0, 0, 0)
 		},
 		dateRange(start, end) {
 			if (end !== null) {
-				let startDate = moment(start.split('-').reverse())
-				let endDate = moment(end.split('-').reverse())
+				let startDate = moment(start.split('-'))
+				let endDate = moment(end.split('-'))
 				return endDate.diff(startDate, 'days')
 			} else {
 				return null
