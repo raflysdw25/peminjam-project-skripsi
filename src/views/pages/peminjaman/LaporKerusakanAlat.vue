@@ -36,6 +36,11 @@
 					<input
 						:type="form.type"
 						class="form-control"
+						:class="
+							form.verified && form.verified === true && form.model !== ''
+								? 'valid'
+								: ''
+						"
 						v-if="formInputType(form.type) === 'input'"
 						:placeholder="form.placeholder"
 						@keydown="formConstraint($event, form.type)"
@@ -112,6 +117,7 @@
 						isRequired: true,
 						data: 'pelapor',
 						disabeld: false,
+						verified: false,
 					},
 					{
 						label: 'Barcode Alat',
@@ -123,6 +129,7 @@
 						isRequired: true,
 						data: 'alat',
 						disabeld: false,
+						verified: false,
 					},
 					{
 						label: 'Kronologi Kerusakan',
@@ -148,9 +155,9 @@
 					if (response.data.response.code === 200) {
 						if (type === 'alat') {
 							let alat = response.data.data
-							if (alat.length === 0) {
+							if (alat === null) {
 								this.formList[1].model = ''
-								this.showAlert(false, false, 'Alat tidak ditemukan')
+								this.showAlert(false, false, response.data.response.message)
 							} else {
 								let alatName = {
 									label: 'Nama Alat',
@@ -168,14 +175,25 @@
 							let pelapor = response.data.data
 							if (pelapor.valid === false) {
 								this.formList[0].model = ''
+								this.formList[0].verified = false
 								this.showAlert(false, false, 'Pelapor tidak ditemukan')
+							} else {
+								this.formList[0].verified = true
 							}
 							this.pelapor.valid = response.data.data.valid
 							this.pelapor.type = response.data.data.pelapor
 						}
 					}
 				} catch (e) {
-					this.showAlert(false, false, e)
+					if (this.environment == 'development') {
+						console.log(e)
+					}
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			async createReport() {
@@ -194,7 +212,15 @@
 					}
 				} catch (e) {
 					this.isCreate = false
-					this.showAlert(false, false, e)
+					if (this.environment == 'development') {
+						console.log(e)
+					}
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			changeValueInput(indexData) {
@@ -286,27 +312,16 @@
 </style>
 <style lang="scss">
 	.lapor-kerusakan-alat {
+		@import '@/assets/css/global.scss';
+		.form-control {
+			&.valid {
+				border-color: #28a745;
+				background-color: #65e783;
+			}
+		}
 		.col-lg-6,
 		.col-12 {
 			padding-left: 0;
-		}
-		input {
-			&.form-control {
-				color: #000;
-				background-color: #fff;
-				border-color: #c5c5c5;
-				border-radius: 5px;
-				font-size: 12px;
-				&:focus {
-					box-shadow: 0 0 0 1px #020b2a;
-				}
-				&:disabled {
-					background-color: #c5c5c5;
-					border-color: #696969;
-				}
-
-				height: 40px;
-			}
 		}
 	}
 </style>

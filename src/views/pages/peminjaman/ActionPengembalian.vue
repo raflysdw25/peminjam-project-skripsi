@@ -314,12 +314,20 @@
 				if (this.choosedPeminjaman !== null) {
 					let data = this.listPeminjamanData[this.choosedPeminjaman]
 					let list = []
+
 					data.detail_peminjaman_model.forEach((detail) => {
+						let verifiedAlat = false
+						let detailAlat = detail.barcode_alat_pinjam
+						if (
+							detailAlat.condition_status !== 2 ||
+							detailAlat.alat_model.habis_pakai
+						) {
+							verifiedAlat = true
+						}
+
 						let row = {
 							...detail,
-							isVerified: detail.barcode_alat_pinjam.alat_model.habis_pakai
-								? true
-								: false,
+							isVerified: verifiedAlat,
 						}
 						list.push(row)
 					})
@@ -355,8 +363,15 @@
 					}
 				} catch (e) {
 					this.isCreate = false
-					console.log(e)
-					this.showAlert(false, false, e)
+					if (this.environment == 'development') {
+						console.log(e)
+					}
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			// Methods

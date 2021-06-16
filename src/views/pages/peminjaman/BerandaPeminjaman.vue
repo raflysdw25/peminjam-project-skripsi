@@ -41,14 +41,6 @@
 				:closeModal="closePopup"
 				:actionType="activeTab"
 			/>
-
-			<base-modal-alert
-				v-if="baseModalType === 'alert'"
-				:isProcess="isProcess"
-				:isSuccess="isSuccess"
-				:message="message"
-				:closeAlert="closePopup"
-			/>
 		</b-modal>
 		<!-- END: POPUP ACTION -->
 	</div>
@@ -58,19 +50,49 @@
 	// Components
 	import TabMenuComponent from '@/components/Peminjaman/TabMenuComponent'
 	import ActionModal from '@/components/Peminjaman/ActionModal'
-	import BaseModalAlert from '@/components/BaseModal/BaseModalAlert'
 
 	// Mixins
 	import ModalMixins from '@/mixins/ModalMixins'
 
 	export default {
 		name: 'beranda-peminjaman',
-		components: { TabMenuComponent, ActionModal, BaseModalAlert },
+		components: { TabMenuComponent, ActionModal },
 		mixins: [ModalMixins],
 		data() {
 			return {
-				tabs: [
+				activeTab: 'peminjaman',
+				actionModal: {
+					peminjaman: 'Peminjaman Alat Laboratorium',
+					pengembalian: 'Pengembalian Alat Laboratorium',
+				},
+				formModal: {
+					label: 'Nomor Induk',
+					type: 'text',
+					placeholder: 'Nomor Induk',
+					model: '',
+				},
+			}
+		},
+		computed: {
+			isMobile() {
+				const toMatch = [
+					/Android/i,
+					/webOS/i,
+					/iPhone/i,
+					/iPad/i,
+					/iPod/i,
+					/BlackBerry/i,
+					/Windows Phone/i,
+				]
+
+				return toMatch.some((toMatchItem) => {
+					return navigator.userAgent.match(toMatchItem)
+				})
+			},
+			tabs() {
+				let regular = [
 					{
+						id: 1,
 						tabTitle: 'Peminjaman',
 						contentTitle: 'ALUR PEMINJAMAN ALAT LABORATORIUM',
 						textButton: 'Pinjam Alat',
@@ -96,6 +118,7 @@
 						],
 					},
 					{
+						id: 2,
 						tabTitle: 'Pengembalian',
 						contentTitle: 'ALUR PENGEMBALIAN ALAT LABORATORIUM',
 						textButton: 'Kembalikan Alat',
@@ -121,6 +144,7 @@
 						],
 					},
 					{
+						id: 3,
 						tabTitle: 'Cek Peminjaman',
 						contentTitle: 'CEK PEMINJAMAN ALAT TERAKHIR',
 						desc:
@@ -128,19 +152,10 @@
 						inputValue: '',
 						textButton: 'Periksa Peminjaman',
 					},
-				],
-				activeTab: 'peminjaman',
-				actionModal: {
-					peminjaman: 'Peminjaman Alat Laboratorium',
-					pengembalian: 'Pengembalian Alat Laboratorium',
-				},
-				formModal: {
-					label: 'Nomor Induk',
-					type: 'text',
-					placeholder: 'Nomor Induk',
-					model: '',
-				},
-			}
+				]
+
+				return regular
+			},
 		},
 		mounted() {},
 		methods: {

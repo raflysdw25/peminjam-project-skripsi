@@ -236,9 +236,6 @@
 		mixins: [FormInputMixins, ModalMixins],
 		components: { AddAlatPinjam, BaseModalAlert },
 		computed: {
-			environment() {
-				return process.env.NODE_ENV
-			},
 			isMobile() {
 				const toMatch = [
 					/Android/i,
@@ -417,7 +414,7 @@
 				// Field Dosen Penanggung Jawab
 				form[2].model = `${this.peminjamData.nip_staff} - ${this.peminjamData.staff_fullname}`
 				form[2].isRequired = false
-				form[2].disabled = true
+				form[2].disabled = false
 			}
 		},
 		methods: {
@@ -443,7 +440,12 @@
 					if (this.environment == 'development') {
 						console.log(e)
 					}
-					this.showAlert(false, false, e)
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			async getRuanganList() {
@@ -473,7 +475,12 @@
 					if (this.environment == 'development') {
 						console.log(e)
 					}
-					this.showAlert(false, false, e)
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			async createPeminjaman() {
@@ -503,8 +510,12 @@
 					if (this.environment == 'development') {
 						console.log(e)
 					}
-
-					this.showAlert(false, false, e)
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			// Form Interaction

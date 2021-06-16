@@ -61,82 +61,6 @@
 				</b-navbar-nav>
 			</b-collapse>
 		</b-navbar>
-		<b-sidebar
-			id="sidebar-menu"
-			shadow
-			v-model="toggleSidebar"
-			bg-variant="smil-primary"
-			text-variant="light"
-			no-header-close
-			backdrop
-		>
-			<template slot="title">
-				<div class="logo-brand-admin">
-					<img src="@/assets/images/brand-admin.png" alt="" />
-				</div>
-			</template>
-			<b-nav vertical>
-				<template v-for="(menu, indexMn) in listMenu">
-					<b-nav-item
-						v-if="menu.child"
-						@click="collapseMenu(`collapse-menu-${indexMn}-${menu.id}`)"
-						:key="`sidebarmenu-item-${indexMn}-${menu.id}`"
-						:active="activeMenu(menu.activeMenu)"
-					>
-						<icon-component
-							:iconName="menu.icon.iconName"
-							:size="menu.icon.size"
-							:colorIcon="menu.icon.color"
-						/>
-						{{ menu.text }}
-						<icon-component
-							:iconName="'dropdown'"
-							:size="24"
-							:colorIcon="`#fff`"
-							iconClass="collapse-icon-dropdown"
-						/>
-					</b-nav-item>
-					<b-collapse
-						v-if="menu.child"
-						:id="`collapse-menu-${indexMn}-${menu.id}`"
-						class="mt-2"
-						:key="`collapsemenu-item-${indexMn}-${menu.id}`"
-						is-nav
-					>
-						<b-card>
-							<ul class="collapse-menu">
-								<li
-									v-for="(child, indexChd) in menu.child"
-									:key="`collapsemenu-${indexChd}-${child.id}`"
-									class="collapse-menu-list-menu smil-link"
-									:class="
-										childActiveMenu(menu.activeMenu, child.activeMenu)
-											? `active`
-											: ``
-									"
-									@click="navigate(child.to)"
-								>
-									{{ child.text }}
-								</li>
-							</ul>
-						</b-card>
-					</b-collapse>
-					<b-nav-item
-						v-else
-						:key="`sidebarmenu-item-${indexMn}-${menu.id}`"
-						:active="menu.to === $route.name"
-						:to="{ name: menu.to }"
-					>
-						<icon-component
-							:iconName="menu.icon.iconName"
-							:size="menu.icon.size"
-							:colorIcon="menu.icon.color"
-						/>
-						{{ menu.text }}
-					</b-nav-item>
-				</template>
-			</b-nav>
-		</b-sidebar>
 	</div>
 </template>
 
@@ -155,48 +79,15 @@
 				required: true,
 				type: String,
 			},
-			sidebarShown: Boolean,
 		},
-		watch: {
-			sidebarShown: {
-				immediate: true,
-				handler: function() {
-					this.toggleSidebar = this.sidebarShown
-				},
-			},
-			toggleSidebar: {
-				handler: function(newVal) {
-					if (!newVal) {
-						this.$emit('actionSidebar', false)
-					} else {
-						this.$emit('actionSidebar', true)
-					}
-				},
-			},
-		},
+		watch: {},
 		data() {
 			return {
 				toggleSidebar: false,
 			}
 		},
 		mounted() {},
-		computed: {
-			isMobile() {
-				const toMatch = [
-					/Android/i,
-					/webOS/i,
-					/iPhone/i,
-					/iPad/i,
-					/iPod/i,
-					/BlackBerry/i,
-					/Windows Phone/i,
-				]
-
-				return toMatch.some((toMatchItem) => {
-					return navigator.userAgent.match(toMatchItem)
-				})
-			},
-		},
+		computed: {},
 		methods: {
 			collapseMenu(idCollapse) {
 				this.$root.$emit('bv::toggle::collapse', idCollapse)

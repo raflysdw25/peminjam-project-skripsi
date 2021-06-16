@@ -28,10 +28,13 @@
 <script>
 	// Vuex
 	import * as types from '@/store/types'
+	// Mixins
+	import FormInputMixins from '@/mixins/FormInputMixins'
 	// API
 	import api from '@/api/peminjam_api'
 	export default {
 		name: 'action-modal',
+		mixins: [FormInputMixins],
 		props: {
 			title: String,
 			form: Object,
@@ -77,11 +80,11 @@
 					} catch (e) {
 						this.loading = false
 						this.form.model = ''
-						if (e.response) {
-							alert(e.response.data.response.message)
-						} else {
-							alert(e)
+						if (this.environment === 'development') {
+							console.log(e)
 						}
+						let output = this.getErrorMessage(e, 'alert')
+						alert(output)
 					}
 				} else if (this.actionType == 'pengembalian') {
 					// Call API to get data peminjaman
@@ -100,7 +103,13 @@
 							this.loading = false
 							this.form.model = ''
 						}
-					} catch (e) {}
+					} catch (e) {
+						if (this.environment === 'development') {
+							console.log(e)
+						}
+						let output = this.getErrorMessage(e, 'alert')
+						alert(output)
+					}
 				}
 			},
 			closeAction() {

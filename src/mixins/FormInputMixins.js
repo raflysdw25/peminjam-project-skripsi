@@ -42,6 +42,16 @@ export default {
 				return true
 			}
 		},
+		emailValidate(email) {
+			if (
+				/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+					email
+				)
+			) {
+				return true
+			}
+			return false
+		},
 		formPasteConstraint(e, type) {
 			if (type === 'barcode-input') {
 				e.preventDefault()
@@ -63,6 +73,46 @@ export default {
 			} else {
 				return null
 			}
+		},
+		getErrorMessage(e, typeDisplayError = 'modal') {
+			// typeDisplayError : alert() -> alert, showAlert() -> modal
+			if (e.response) {
+				let err = e.response.data
+				if (err.response.code === 400) {
+					let mKey = Object.keys(err.response.message)
+					let message = err.response.message
+					if (typeDisplayError == 'alert') {
+						let output = ''
+						mKey.forEach((key, idxKey) => {
+							if (idxKey !== mKey.length - 1) {
+								output += `${message[key]}, `
+							} else {
+								output += `${message[key]}`
+							}
+						})
+						return output
+					} else if (typeDisplayError == 'modal') {
+						let output = []
+						mKey.forEach((key, idxKey) => {
+							let modalNotes = {
+								title: key,
+								message: message[key],
+							}
+							output.push(modalNotes)
+						})
+						return output
+					}
+				} else {
+					return err.response.message
+				}
+			} else {
+				return e
+			}
+		},
+	},
+	computed: {
+		environment() {
+			return process.env.NODE_ENV
 		},
 	},
 }

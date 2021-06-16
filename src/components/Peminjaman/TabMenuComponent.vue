@@ -37,7 +37,15 @@
 					</div>
 				</div>
 				<div class="button-group">
+					<p
+						v-if="tabMenu.id == 2 && isMobile"
+						class="text-center font-weight-bold"
+					>
+						Silahkan melakukan pengembalian alat <br />
+						di Laboratorium TIK
+					</p>
 					<button
+						v-else
 						class="smil-btn smil-btn-large smil-bg-primary"
 						@click="action"
 					>
@@ -89,7 +97,7 @@
 								v-for="(alat, idxAlat) in list.detail_peminjaman_model"
 								:key="`list-detail-alat-${idxAlat}`"
 							>
-								<template v-if="list.pjm_status == 1">
+								<template v-if="list.pjm_status >= 1 && list.pjm_status <= 3">
 									{{ alat.alat_pinjam.alat_name }}
 								</template>
 								<template v-else>
@@ -152,6 +160,23 @@
 				listInfo: [],
 			}
 		},
+		computed: {
+			isMobile() {
+				const toMatch = [
+					/Android/i,
+					/webOS/i,
+					/iPhone/i,
+					/iPad/i,
+					/iPod/i,
+					/BlackBerry/i,
+					/Windows Phone/i,
+				]
+
+				return toMatch.some((toMatchItem) => {
+					return navigator.userAgent.match(toMatchItem)
+				})
+			},
+		},
 		methods: {
 			// API
 			async checkFunction() {
@@ -173,7 +198,15 @@
 						this.tabMenu.inputValue = ''
 					}
 				} catch (e) {
-					this.showAlert(false, false, e)
+					if (this.environment == 'development') {
+						console.log(e)
+					}
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			// Action
@@ -289,6 +322,7 @@
 							margin-right: 25px;
 						}
 						.alat-list {
+							width: 260px;
 							p {
 								color: #000;
 								font-weight: 500;
@@ -342,6 +376,7 @@
 							}
 
 							p {
+								font-size: 12px;
 								&.smil-status {
 									margin-left: 10px;
 								}

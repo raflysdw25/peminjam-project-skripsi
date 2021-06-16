@@ -188,6 +188,7 @@
 					sr.nim !== '' &&
 					sr.mahasiswa_fullname !== '' &&
 					sr.email !== '' &&
+					this.emailValidate(sr.email) &&
 					sr.phone_number !== '' &&
 					sr.register_year !== ''
 				)
@@ -219,7 +220,15 @@
 						this.formList[4].options = list
 					}
 				} catch (e) {
-					this.showAlert(false, false, e)
+					if (this.environment == 'development') {
+						console.log(e)
+					}
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 			async addMahasiswa() {
@@ -235,7 +244,15 @@
 					}
 				} catch (e) {
 					this.isCreate = false
-					this.showAlert(false, false, e)
+					if (this.environment == 'development') {
+						console.log(e)
+					}
+					let message = this.getErrorMessage(e)
+					if (typeof message == 'object' && message.length > 0) {
+						this.showAlert(false, false, 'Terjadi Kesalahan', message)
+					} else {
+						this.showAlert(false, false, message)
+					}
 				}
 			},
 		},
