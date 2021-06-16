@@ -143,7 +143,7 @@
 						model: null,
 						description: '',
 						placeholder: 'Program Studi',
-						isRequired: false,
+						isRequired: true,
 						options: [],
 					},
 					{
@@ -190,7 +190,8 @@
 					sr.email !== '' &&
 					this.emailValidate(sr.email) &&
 					sr.phone_number !== '' &&
-					sr.register_year !== ''
+					sr.register_year !== '' &&
+					sr.prodi_id !== null
 				)
 			},
 		},
