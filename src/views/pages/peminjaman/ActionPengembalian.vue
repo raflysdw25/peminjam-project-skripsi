@@ -237,6 +237,7 @@
 				:isProcess="isProcess"
 				:isSuccess="isSuccess"
 				:message="message"
+				:notes="notes"
 				:closeAlert="closePopup"
 			/>
 			<base-modal-check-barcode

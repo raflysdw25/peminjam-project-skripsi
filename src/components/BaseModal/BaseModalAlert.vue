@@ -21,6 +21,21 @@
 			<p class="user-message">
 				{{ message }}
 			</p>
+			<div
+				class="note-message"
+				:class="notes.length > 4 && 'scrollbar'"
+				v-if="notes.length > 0"
+			>
+				<p class="notes-message" v-if="isSuccess">Dengan Catatan :</p>
+				<ul>
+					<li v-for="(note, idx) in notes" :key="`note-${idx}`">
+						{{ note.title }} <br />
+						<span class="errorMessage">
+							{{ note.message }}
+						</span>
+					</li>
+				</ul>
+			</div>
 			<button
 				class="smil-btn smil-btn-small mx-auto mt-4 smil-bg-secondary"
 				v-if="!isSuccess"
@@ -39,6 +54,12 @@
 			isProcess: Boolean,
 			isSuccess: Boolean,
 			message: String,
+			notes: {
+				default() {
+					return []
+				},
+				type: Array,
+			},
 			closeAlert: Function,
 		},
 		mounted() {
@@ -119,6 +140,37 @@
 			}
 			&.user-message {
 				margin-top: 10px;
+			}
+			&.notes-message {
+				text-align: left;
+				font-weight: 700;
+				margin-bottom: 5px;
+			}
+		}
+
+		.note-message {
+			margin-top: 10px;
+			&.scrollbar {
+				overflow-y: scroll;
+			}
+			height: 240px;
+			background: #f3f3f3;
+			border: 1px solid #e1e1e1;
+			text-align: left;
+
+			padding: 20px 16px;
+			ul {
+				padding-inline-start: 0;
+				list-style-type: none;
+				li {
+					font-size: 12px;
+					margin-bottom: 8px;
+					color: #464646;
+				}
+				.errorMessage {
+					color: #e03120;
+					font-size: 12px;
+				}
 			}
 		}
 	}

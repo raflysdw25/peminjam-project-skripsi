@@ -5,6 +5,8 @@ export default {
 			isProcess: false,
 			isSuccess: false,
 			message: '',
+			notes: [],
+			countError: 0,
 		}
 	},
 	methods: {
@@ -16,11 +18,16 @@ export default {
 			this.baseModalType = ''
 			this.$refs['modal-popup'].hide()
 		},
-		showAlert(isProcess, isSuccess = false, message = '') {
+		showAlert(isProcess, isSuccess = false, message = '', notes = []) {
 			this.isProcess = isProcess
 			this.isSuccess = isSuccess
 			this.message = message
+			this.notes = notes
 			this.openPopup('alert')
+		},
+		setEmptyNotes() {
+			this.notes = []
+			this.countError = 0
 		},
 	},
 }

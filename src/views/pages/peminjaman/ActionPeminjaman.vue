@@ -7,12 +7,14 @@
 			<div class="button-group">
 				<button
 					class="smil-btn smil-bg-danger mr-3"
+					:class="isMobile ? 'smil-btn-small' : ''"
 					@click="$router.push({ name: 'BerandaPeminjaman' })"
 				>
 					Batal
 				</button>
 				<button
 					class="smil-btn smil-bg-primary"
+					:class="isMobile ? 'smil-btn-small' : ''"
 					:disabled="!formFilled"
 					@click="createPeminjaman"
 				>
@@ -132,7 +134,8 @@
 							</p>
 						</div>
 						<button
-							class="smil-btn smil-btn-small smil-bg-primary"
+							class="smil-btn smil-bg-primary"
+							:class="isMobile ? 'smil-btn-small' : ''"
 							@click="openPopup('add-alat')"
 							:disabled="!addAlatBtnActive"
 						>
@@ -210,6 +213,7 @@
 				:isProcess="isProcess"
 				:isSuccess="isSuccess"
 				:message="message"
+				:notes="notes"
 				:closeAlert="closePopup"
 			/>
 		</b-modal>
@@ -524,7 +528,7 @@
 			},
 			changeDate(fieldRow) {
 				let rangeDate = this.dateRange(this.currentDate, fieldRow.model)
-				console.log(rangeDate)
+				console.log('Range Date: ', rangeDate)
 				if (!this.isMobile) {
 					this.addedAlat = []
 				}
@@ -624,6 +628,11 @@
 	@media screen and (max-width: 992px) {
 		.action-peminjaman {
 			padding: 0;
+			.header {
+				.header-title {
+					font-size: 18px;
+				}
+			}
 			.form-content {
 				.form-group {
 					margin-top: 30px;

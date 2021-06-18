@@ -41,11 +41,16 @@
 		</div>
 		<div class="info-content" v-if="formKey == 'direct'">
 			<h6>Informasi Alat</h6>
+
 			<p class="empty-form" v-if="formAdd['direct'].model.length < 2">
 				Belum ada alat terdeteksi
 			</p>
 			<template v-else>
-				<div class="table-responsive-sm">
+				<b-spinner
+					v-if="loadingAlat"
+					style="width: 35px; height: 35px; margin-top: 10px"
+				></b-spinner>
+				<div class="table-responsive-sm" v-else>
 					<table class="table table-borderless">
 						<tr>
 							<th>Nama Alat</th>
@@ -137,6 +142,7 @@
 					},
 				},
 				barcodeAlatData: {},
+				loadingAlat: false,
 			}
 		},
 		methods: {
@@ -167,11 +173,16 @@
 						this.formAdd['booking'].options = listAlat
 					}
 				} catch (e) {
-					alert(e)
+					if (this.environment === 'development') {
+						console.log(e)
+					}
+					let output = this.getErrorMessage(e, 'alert')
+					alert(output)
 				}
 			},
 			async cekAlatByBarcode() {
 				if (this.formAdd['direct'].model.length > 2) {
+					this.loadingAlat = true
 					try {
 						let payload = {
 							barcode_alat: this.formAdd['direct'].model,
@@ -185,10 +196,16 @@
 								this.formAdd['direct'].model = ''
 								alert(response.data.response.message)
 							}
+							this.loadingAlat = false
 						}
 					} catch (e) {
+						this.loadingAlat = false
 						this.formAdd['direct'].model = ''
-						alert(e)
+						if (this.environment === 'development') {
+							console.log(e)
+						}
+						let output = this.getErrorMessage(e, 'alert')
+						alert(output)
 					}
 				}
 			},

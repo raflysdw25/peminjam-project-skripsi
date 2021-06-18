@@ -19,7 +19,11 @@
 					:active="activeTab == tab.tabTitle.toLowerCase()"
 					@click="setActiveTab(tab.tabTitle.toLowerCase())"
 				>
-					<tab-menu-component :actionButton="openPopup" :tabMenu="tab" />
+					<tab-menu-component
+						:actionButton="openPopup"
+						:tabMenu="tab"
+						:activeButton="checkActiveButton"
+					/>
 				</b-tab>
 			</b-tabs>
 		</div>
@@ -71,26 +75,7 @@
 					placeholder: 'Nomor Induk',
 					model: '',
 				},
-			}
-		},
-		computed: {
-			isMobile() {
-				const toMatch = [
-					/Android/i,
-					/webOS/i,
-					/iPhone/i,
-					/iPad/i,
-					/iPod/i,
-					/BlackBerry/i,
-					/Windows Phone/i,
-				]
-
-				return toMatch.some((toMatchItem) => {
-					return navigator.userAgent.match(toMatchItem)
-				})
-			},
-			tabs() {
-				let regular = [
+				tabs: [
 					{
 						id: 1,
 						tabTitle: 'Peminjaman',
@@ -152,9 +137,29 @@
 						inputValue: '',
 						textButton: 'Periksa Peminjaman',
 					},
+				],
+			}
+		},
+		computed: {
+			isMobile() {
+				const toMatch = [
+					/Android/i,
+					/webOS/i,
+					/iPhone/i,
+					/iPad/i,
+					/iPod/i,
+					/BlackBerry/i,
+					/Windows Phone/i,
 				]
 
-				return regular
+				return toMatch.some((toMatchItem) => {
+					return navigator.userAgent.match(toMatchItem)
+				})
+			},
+
+			checkActiveButton() {
+				let form = this.tabs[2].inputValue
+				return form !== ''
 			},
 		},
 		mounted() {},

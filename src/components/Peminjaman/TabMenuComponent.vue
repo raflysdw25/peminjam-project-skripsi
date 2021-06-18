@@ -66,7 +66,7 @@
 					<button
 						class="smil-btn smil-btn-large smil-bg-primary w-100"
 						@click="checkFunction"
-						:disabled="tabMenu.inputValue === ''"
+						:disabled="!activeButton"
 					>
 						{{ tabMenu.textButton }}
 					</button>
@@ -133,6 +133,7 @@
 				:isSuccess="isSuccess"
 				:message="message"
 				:closeAlert="closePopup"
+				:notes="notes"
 			/>
 		</b-modal>
 	</div>
@@ -154,6 +155,7 @@
 		props: {
 			tabMenu: Object,
 			actionButton: Function,
+			activeButton: Boolean,
 		},
 		data() {
 			return {
@@ -175,6 +177,11 @@
 				return toMatch.some((toMatchItem) => {
 					return navigator.userAgent.match(toMatchItem)
 				})
+			},
+			inputCekFilled() {
+				if (this.tabMenu.inputValue) {
+					return this.tabMenu.inputValue !== ''
+				}
 			},
 		},
 		methods: {
@@ -364,7 +371,7 @@
 				}
 			}
 			.input-section {
-				padding: 0 30px;
+				padding: 0 10px;
 				.input-display {
 					h5 {
 						font-size: 14px;
