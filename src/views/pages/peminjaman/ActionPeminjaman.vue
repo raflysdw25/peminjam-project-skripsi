@@ -4,17 +4,15 @@
 			<h3 class="header-title">
 				Informasi Peminjam
 			</h3>
-			<div class="button-group">
+			<div class="button-group" v-if="!isMobile">
 				<button
 					class="smil-btn smil-bg-danger mr-3"
-					:class="isMobile ? 'smil-btn-small' : ''"
 					@click="$router.push({ name: 'BerandaPeminjaman' })"
 				>
 					Batal
 				</button>
 				<button
 					class="smil-btn smil-bg-primary"
-					:class="isMobile ? 'smil-btn-small' : ''"
 					:disabled="!formFilled"
 					@click="createPeminjaman"
 				>
@@ -22,7 +20,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="form-content">
+		<div class="form-content" :class="isMobile ? 'mobile' : ''">
 			<div class="smil-row">
 				<div class="col-lg-6 col-12 mb-4">
 					<div
@@ -192,6 +190,22 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="button-group mobile justify-content-end" v-if="isMobile">
+			<button
+				class="smil-btn smil-bg-danger mr-3"
+				@click="$router.push({ name: 'BerandaPeminjaman' })"
+			>
+				Batal
+			</button>
+			<button
+				class="smil-btn smil-bg-primary"
+				:disabled="!formFilled"
+				@click="createPeminjaman"
+			>
+				Simpan
+			</button>
 		</div>
 
 		<b-modal
@@ -570,6 +584,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
+			padding: 0 15px;
 			.header-title {
 				font-size: 32px;
 				font-weight: 700;
@@ -577,6 +592,9 @@
 		}
 		.form-content {
 			margin-top: 50px;
+			&.mobile {
+				margin-top: 10px;
+			}
 			.form-group {
 				.form-label {
 					font-size: 16px;
@@ -619,6 +637,10 @@
 
 		.button-group {
 			display: flex;
+			&.mobile {
+				margin-top: 30px;
+				padding-right: 15px;
+			}
 		}
 
 		.mx-datepicker {
