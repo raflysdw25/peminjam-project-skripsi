@@ -4,7 +4,7 @@
 			<h3 class="header-title">
 				Buat Akun Mahasiswa
 			</h3>
-			<div class="button-group">
+			<div class="button-group" v-if="!isMobile">
 				<button
 					class="smil-btn smil-bg-danger mr-3"
 					@click="$router.push({ name: 'BerandaPeminjaman' })"
@@ -34,9 +34,10 @@
 						*
 					</span>
 					<input
-						:type="form.type"
+						:type="form.type == 'nomor_induk' ? 'text' : form.type"
 						class="form-control"
 						v-if="formInputType(form.type) === 'input'"
+						@keydown="formConstraint($event, form.type)"
 						:placeholder="form.placeholder"
 						v-model="form.model"
 					/>
@@ -68,6 +69,21 @@
 					</p>
 				</div>
 			</div>
+		</div>
+		<div class="button-group" v-if="isMobile">
+			<button
+				class="smil-btn smil-bg-danger mr-3"
+				@click="$router.push({ name: 'BerandaPeminjaman' })"
+			>
+				Batal
+			</button>
+			<button
+				class="smil-btn smil-bg-primary"
+				@click="addMahasiswa"
+				:disabled="!formFilled"
+			>
+				Submit
+			</button>
 		</div>
 
 		<b-modal
@@ -107,7 +123,7 @@
 				formList: [
 					{
 						label: 'Nomor Induk Mahasiswa',
-						type: 'text',
+						type: 'nomor_induk',
 						model: '',
 						description: 'Masukkan Nomor Induk Mahasiswa anda',
 						placeholder: 'Nomor Induk Mahasiswa',
@@ -299,6 +315,26 @@
 		}
 		.button-group {
 			display: flex;
+		}
+	}
+
+	@media screen and (max-width: 998px) {
+		.buat-akun-mahasiswa {
+			.header {
+				.header-title {
+					font-size: 20px;
+				}
+			}
+
+			.form-content {
+				margin-top: 20px;
+			}
+
+			.button-group {
+				margin-top: 30px;
+				padding-right: 15px;
+				justify-content: flex-end;
+			}
 		}
 	}
 </style>

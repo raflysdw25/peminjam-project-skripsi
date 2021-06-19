@@ -10,6 +10,7 @@ export default {
 				'tel',
 				'text-barcode',
 				'barcode-input',
+				'nomor_induk',
 			],
 			isCreate: false,
 			loadingForm: false,
@@ -25,11 +26,20 @@ export default {
 		},
 
 		formConstraint(e, type) {
-			if (type === 'tel') {
-				let char = String.fromCharCode(e.keyCode) // Get the character
-				if (/^[0-9]+$/.test(char)) return true
-				// Match with regex
-				else e.preventDefault() // If not match, don't add to input text
+			if (type === 'tel' || type === 'nomor_induk') {
+				if (this.isMobile) {
+					let char = String.fromCharCode(e.keyCode)
+					console.log(char) // Get the character
+					if (/^[0-9]+$/.test(char)) return true
+					// Match with regex
+					else e.preventDefault()
+				} else {
+					let charCode = e.keyCode
+
+					if ((charCode > 47 && charCode <= 57) || charCode == 8) return true
+					// Match with regex
+					else e.preventDefault() // If not match, don't add to input text
+				}
 			} else if (type === 'barcode-input') {
 				let timer = 0
 				clearTimeout(timer)
@@ -113,6 +123,21 @@ export default {
 	computed: {
 		environment() {
 			return process.env.NODE_ENV
+		},
+		isMobile() {
+			const toMatch = [
+				/Android/i,
+				/webOS/i,
+				/iPhone/i,
+				/iPad/i,
+				/iPod/i,
+				/BlackBerry/i,
+				/Windows Phone/i,
+			]
+
+			return toMatch.some((toMatchItem) => {
+				return navigator.userAgent.match(toMatchItem)
+			})
 		},
 	},
 }
