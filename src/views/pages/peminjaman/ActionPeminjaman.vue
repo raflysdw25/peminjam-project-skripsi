@@ -1,5 +1,8 @@
 <template>
-	<div class="action-peminjaman">
+	<div class="text-center" v-if="loadingForm">
+		<b-spinner style="width: 120px; height: 120px"></b-spinner>
+	</div>
+	<div class="action-peminjaman" v-else>
 		<div class="header">
 			<h3 class="header-title">
 				Informasi Peminjam
@@ -400,6 +403,7 @@
 				this.$router.push({ name: 'BerandaPeminjaman' })
 			}
 			// Call API
+			this.loadingForm = true
 			await this.getRuanganList()
 			await this.getStaffList()
 
@@ -419,6 +423,7 @@
 				form[2].isRequired = false
 				form[2].disabled = false
 			}
+			this.loadingForm = false
 		},
 		methods: {
 			// API

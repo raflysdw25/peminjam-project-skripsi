@@ -123,7 +123,7 @@
 				formList: [
 					{
 						label: 'Nomor Induk Mahasiswa',
-						type: 'nomor_induk',
+						type: 'number',
 						model: '',
 						description: 'Masukkan Nomor Induk Mahasiswa anda',
 						placeholder: 'Nomor Induk Mahasiswa',

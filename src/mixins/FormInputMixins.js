@@ -26,25 +26,18 @@ export default {
 		},
 
 		formConstraint(e, type) {
-			if (type === 'tel' || type === 'nomor_induk') {
-				// if (this.isMobile) {
-				// 	let char = String.fromCharCode(e.keyCode)
-				// 	console.log(char) // Get the character
-				// 	if (/^[0-9]+$/.test(char)) return true
-				// 	// Match with regex
-				// 	else e.preventDefault()
-				// } else {
-				// 	let charCode = e.keyCode
+			if (type === 'tel') {
+				let char = String.fromCharCode(e.keyCode)
 
-				// 	if ((charCode > 47 && charCode <= 57) || charCode == 8) return true
-				// 	// Match with regex
-				// 	else e.preventDefault() // If not match, don't add to input text
-				// }
-				let charCode = e.keyCode
-
-				if ((charCode > 47 && charCode <= 57) || charCode == 8) return true
+				if (
+					/^[0-9]+$/.test(char) ||
+					e.keyCode == 8 ||
+					e.keyCode == 37 ||
+					e.keyCode == 39
+				)
+					return true
 				// Match with regex
-				else e.preventDefault() // If not match, don't add to input text
+				else e.preventDefault()
 			} else if (type === 'barcode-input') {
 				let timer = 0
 				clearTimeout(timer)
