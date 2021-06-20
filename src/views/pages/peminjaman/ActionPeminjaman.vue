@@ -536,12 +536,10 @@
 				if (!this.isMobile) {
 					this.addedAlat = []
 				}
-				if (rangeDate > 1) {
-					this.addedAlatType = 'long'
-				} else if (rangeDate === 1 || rangeDate === 0) {
+				if (rangeDate === 1 || rangeDate === 0) {
 					this.addedAlatType = 'short'
 				} else {
-					this.addedAlatType = ''
+					this.addedAlatType = 'long'
 				}
 			},
 			addToList(objectAlat) {
