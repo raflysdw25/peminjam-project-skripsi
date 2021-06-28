@@ -14,28 +14,36 @@
 		</div>
 		<div class="steps-section" v-if="tabMenu.steps">
 			<div class="smil-row">
-				<div
-					class="steps-box col-lg-3 col-12"
-					:class="idxStep !== tabMenu.steps.length - 1 ? `not-last` : ``"
-					v-for="(step, idxStep) in tabMenu.steps"
-					:key="`step-${idxStep}`"
-				>
-					<icon-component
-						:iconName="step.icon"
-						:size="154"
-						colorIcon="#101939"
-					/>
-					<div class="step-title">
-						<h6>
-							{{ step.title }}
-						</h6>
+				<template v-for="(step, idxStep) in tabMenu.steps">
+					<div
+						class="steps-box col-lg-3 col-12"
+						:class="idxStep !== tabMenu.steps.length - 1 ? `not-last` : ``"
+						:key="`step-${idxStep}`"
+					>
+						<icon-component
+							:iconName="step.icon"
+							:size="154"
+							colorIcon="#101939"
+						/>
+						<div class="step-title">
+							<h6>
+								{{ step.title }}
+							</h6>
+						</div>
+						<div class="step-desc">
+							<p>
+								{{ step.desc }}
+							</p>
+						</div>
 					</div>
-					<div class="step-desc">
-						<p>
-							{{ step.desc }}
-						</p>
+					<div
+						class="arrow"
+						:key="`arrow-next-${idxStep}`"
+						v-if="idxStep !== tabMenu.steps.length - 1"
+					>
+						<b-icon icon="arrow-right" class="arrow-next"></b-icon>
 					</div>
-				</div>
+				</template>
 				<div class="button-group">
 					<p
 						v-if="tabMenu.id == 2 && isMobile"
@@ -265,7 +273,7 @@
 					margin-right: 0;
 				}
 				&.not-last {
-					margin-right: 88px;
+					margin-right: 10px;
 				}
 				width: 275px;
 				text-align: center;
@@ -284,6 +292,18 @@
 				.step-desc {
 					margin-top: 30px;
 				}
+			}
+		}
+		.arrow {
+			display: flex;
+			flex-direction: column;
+			// align-items: center;
+			justify-content: center;
+			.arrow-next {
+				color: #101939;
+				width: 72px;
+				height: 72px;
+				font-weight: bold;
 			}
 		}
 		.input-section {
@@ -354,6 +374,9 @@
 						margin-right: 0;
 					}
 				}
+			}
+			.arrow {
+				display: none;
 			}
 			.input-section {
 				padding: 0 10px;
