@@ -26,7 +26,7 @@
 					Barcode Alat Sesuai
 				</p>
 				<p class="desc failed" v-else-if="!this.verified">
-					Barcode Alat Tida Sesuai
+					Barcode Alat Tidak Sesuai
 				</p>
 			</div>
 		</div>
