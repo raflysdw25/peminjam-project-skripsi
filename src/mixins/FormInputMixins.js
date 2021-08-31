@@ -75,8 +75,8 @@ export default {
 		},
 		dateRange(start, end) {
 			if (end !== null) {
-				let startDate = moment(start.split('-'))
-				let endDate = moment(end.split('-'))
+				let startDate = moment(start)
+				let endDate = moment(end)
 				return endDate.diff(startDate, 'days')
 			} else {
 				return null

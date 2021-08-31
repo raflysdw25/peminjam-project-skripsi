@@ -531,7 +531,10 @@
 				form.model = ''
 			},
 			changeDate(fieldRow) {
-				let rangeDate = this.dateRange(this.currentDate, fieldRow.model)
+				let rangeDate = this.dateRange(
+					this.currentDate,
+					this.formatDate(fieldRow.model, 'YYYY-MM-DD')
+				)
 				console.log('Range Date: ', rangeDate)
 				if (!this.isMobile) {
 					this.addedAlat = []

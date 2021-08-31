@@ -3,11 +3,24 @@
 		<h4 class="action-modal-title">
 			{{ title }}
 		</h4>
+
+		<div class="error-message" v-if="errorMessage !== ''">
+			<p class="mb-0">{{ errorMessage }}</p>
+			<span class="close-error" @click="eraseError">X</span>
+		</div>
 		<div class="form-group">
 			<label for="action-input" class="form-label">
 				{{ form.label }}
 			</label>
-			<input :type="form.type" v-model="form.model" class="form-control" />
+			<input
+				:type="form.type"
+				v-model="form.model"
+				class="form-control"
+				@keypress.enter="doAction()"
+			/>
+			<small>
+				Staff atau Dosen jurusan menggunakan NIP, Mahasiswa menggunakan NIM
+			</small>
 		</div>
 		<div class="button-group">
 			<button class="smil-btn smil-bg-secondary mr-2" @click="closeAction">
@@ -46,9 +59,22 @@
 				return this.form.model !== ''
 			},
 		},
+		watch: {
+			errorMessage: {
+				deep: true,
+				handler: function(newValue) {
+					if (newValue !== '') {
+						setTimeout(() => {
+							this.errorMessage = ''
+						}, 2000)
+					}
+				},
+			},
+		},
 		data() {
 			return {
 				loading: false,
+				errorMessage: '',
 			}
 		},
 		methods: {
@@ -75,7 +101,8 @@
 						} else {
 							this.loading = false
 							this.form.model = ''
-							alert(response.data.response.message)
+							// alert(response.data.response.message)
+							this.errorMessage = response.data.response.message
 						}
 					} catch (e) {
 						this.loading = false
@@ -84,7 +111,8 @@
 							console.log(e)
 						}
 						let output = this.getErrorMessage(e, 'alert')
-						alert(output)
+						// alert(output)
+						this.errorMessage = output
 					}
 				} else if (this.actionType == 'pengembalian') {
 					// Call API to get data peminjaman
@@ -99,7 +127,8 @@
 							this.$store.dispatch(types.UPDATE_PEMINJAMANDATA, peminjamanData)
 							this.$router.push({ name: 'ActionPengembalian' })
 						} else {
-							alert(response.data.response.message)
+							// alert(response.data.response.message)
+							this.errorMessage = response.data.response.message
 							this.loading = false
 							this.form.model = ''
 						}
@@ -108,13 +137,17 @@
 							console.log(e)
 						}
 						let output = this.getErrorMessage(e, 'alert')
-						alert(output)
+						// alert(output)
+						this.errorMessage = output
 					}
 				}
 			},
 			closeAction() {
 				this.form.model = ''
 				this.closeModal()
+			},
+			eraseError() {
+				this.errorMessage = ''
 			},
 		},
 	}
@@ -131,6 +164,31 @@
 			margin-top: 40px;
 			display: flex;
 			justify-content: flex-end;
+		}
+		.error-message {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 20px;
+			padding: 12px;
+			border-radius: 6px;
+			color: #dc3545;
+			font-weight: bold;
+			background-color: #da3b4b6e;
+			.close-error {
+				color: #000;
+				font-weight: bold;
+				&:hover {
+					cursor: pointer;
+				}
+			}
+		}
+	}
+</style>
+<style lang="scss">
+	.action-modal {
+		.form-control {
+			height: 40px;
 		}
 	}
 </style>

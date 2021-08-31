@@ -7,21 +7,16 @@
 					{{ formAdd[formKey].label }}
 				</label>
 				<template v-if="formKey === 'booking'">
-					<select
-						class="custom-select"
+					<model-list-select
+						ref="list-alat"
 						v-if="formAdd[formKey].type === 'select'"
+						:list="formAdd[formKey].options"
+						class="form-control"
 						v-model="formAdd[formKey].model"
-						:disabled="formAdd[formKey].disabled"
-					>
-						<option
-							:disabled="ops.disabled"
-							:value="ops.value"
-							v-for="(ops, idxOps) in formAdd[formKey].options"
-							:key="`select-options-alat-${idxOps}`"
-						>
-							{{ ops.name }}
-						</option>
-					</select>
+						option-value="value"
+						option-text="name"
+						placeholder="Pilih alat yang dipinjam"
+					/>
 				</template>
 				<template v-if="formKey === 'direct'">
 					<input
@@ -98,6 +93,7 @@
 </template>
 
 <script>
+	//Components
 	// Mixins
 	import FormInputMixins from '@/mixins/FormInputMixins'
 
@@ -152,14 +148,7 @@
 					const response = await api.getPlainData('alat')
 					if (response.data.response.code === 200) {
 						let listData = response.data.data
-						let listAlat = [
-							{
-								id: null,
-								name: 'Pilih Alat yang ingin dipinjam',
-								value: null,
-								disabled: true,
-							},
-						]
+						let listAlat = []
 
 						listData.forEach((data) => {
 							let alat = {
@@ -283,6 +272,13 @@
 
 		.button-group {
 			margin-top: 50px;
+		}
+	}
+</style>
+<style lang="scss">
+	.add-alat-pinjam {
+		.form-control {
+			height: 40px;
 		}
 	}
 </style>
