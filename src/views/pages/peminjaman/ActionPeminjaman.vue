@@ -446,7 +446,7 @@
 					}
 				} catch (e) {
 					if (this.environment == 'development') {
-						console.log(e)
+						e
 					}
 					let message = this.getErrorMessage(e)
 					if (typeof message == 'object' && message.length > 0) {
@@ -481,7 +481,7 @@
 					}
 				} catch (e) {
 					if (this.environment == 'development') {
-						console.log(e)
+						e
 					}
 					let message = this.getErrorMessage(e)
 					if (typeof message == 'object' && message.length > 0) {
@@ -516,7 +516,7 @@
 				} catch (e) {
 					this.isCreate = false
 					if (this.environment == 'development') {
-						console.log(e)
+						e
 					}
 					let message = this.getErrorMessage(e)
 					if (typeof message == 'object' && message.length > 0) {
@@ -534,8 +534,7 @@
 				let rangeDate = this.dateRange(
 					this.currentDate,
 					this.formatDate(fieldRow.model, 'YYYY-MM-DD')
-				)
-				console.log('Range Date: ', rangeDate)
+				)('Range Date: ', rangeDate)
 				if (!this.isMobile) {
 					this.addedAlat = []
 				}

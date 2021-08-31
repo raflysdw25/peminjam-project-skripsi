@@ -163,7 +163,7 @@
 					}
 				} catch (e) {
 					if (this.environment === 'development') {
-						console.log(e)
+						e
 					}
 					let output = this.getErrorMessage(e, 'alert')
 					alert(output)
@@ -190,9 +190,7 @@
 					} catch (e) {
 						this.loadingAlat = false
 						this.formAdd['direct'].model = ''
-						if (this.environment === 'development') {
-							console.log(e)
-						}
+
 						let output = this.getErrorMessage(e, 'alert')
 						alert(output)
 					}

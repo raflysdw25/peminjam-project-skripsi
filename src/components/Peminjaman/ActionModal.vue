@@ -107,9 +107,7 @@
 					} catch (e) {
 						this.loading = false
 						this.form.model = ''
-						if (this.environment === 'development') {
-							console.log(e)
-						}
+
 						let output = this.getErrorMessage(e, 'alert')
 						// alert(output)
 						this.errorMessage = output
@@ -133,9 +131,6 @@
 							this.form.model = ''
 						}
 					} catch (e) {
-						if (this.environment === 'development') {
-							console.log(e)
-						}
 						let output = this.getErrorMessage(e, 'alert')
 						// alert(output)
 						this.errorMessage = output

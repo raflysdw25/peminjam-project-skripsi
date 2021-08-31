@@ -186,7 +186,7 @@
 					}
 				} catch (e) {
 					if (this.environment == 'development') {
-						console.log(e)
+						e
 					}
 					let message = this.getErrorMessage(e)
 					if (typeof message == 'object' && message.length > 0) {
@@ -213,7 +213,7 @@
 				} catch (e) {
 					this.isCreate = false
 					if (this.environment == 'development') {
-						console.log(e)
+						e
 					}
 					let message = this.getErrorMessage(e)
 					if (typeof message == 'object' && message.length > 0) {
